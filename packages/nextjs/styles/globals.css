@@ -5,33 +5,38 @@
 @theme {
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --font-mono:
+    "JetBrains Mono", "Fira Code", "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --font-sans: var(--font-mono);
 }
 
 @plugin "daisyui" {
   themes:
     light,
-    dark --prefersdark;
+    dark --prefersdark --default;
 }
 
+/* Giorno in raffineria: cemento chiaro, insegne al neon ancora accese. */
 @plugin "daisyui/theme" {
   name: "light";
 
-  --color-primary: #93bbfb;
-  --color-primary-content: #212638;
-  --color-secondary: #dae8ff;
-  --color-secondary-content: #212638;
-  --color-accent: #93bbfb;
-  --color-accent-content: #212638;
-  --color-neutral: #212638;
-  --color-neutral-content: #ffffff;
-  --color-base-100: #ffffff;
-  --color-base-200: #f4f8ff;
-  --color-base-300: #dae8ff;
-  --color-base-content: #212638;
-  --color-info: #93bbfb;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-primary: #0091a8;
+  --color-primary-content: #f2fdff;
+  --color-secondary: #c2185b;
+  --color-secondary-content: #fff5fa;
+  --color-accent: #7b1fa2;
+  --color-accent-content: #faf5ff;
+  --color-neutral: #1a1626;
+  --color-neutral-content: #e8f9ff;
+  --color-base-100: #f3f1f7;
+  --color-base-200: #e6e2ee;
+  --color-base-300: #d3cde0;
+  --color-base-content: #1a1626;
+  --color-info: #0091a8;
+  --color-success: #128f5a;
+  --color-warning: #b07600;
+  --color-error: #c81e4a;
 
   --radius-field: 0rem;
   --radius-box: 0rem;
@@ -40,49 +45,42 @@
   --tt-tailw: 6px;
 }
 
+/* Notte: catrame, ciano e magenta. */
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #212638;
-  --color-primary-content: #f9fbff;
-  --color-secondary: #323f61;
-  --color-secondary-content: #f9fbff;
-  --color-accent: #4969a6;
-  --color-accent-content: #f9fbff;
-  --color-neutral: #f9fbff;
-  --color-neutral-content: #385183;
-  --color-base-100: #385183;
-  --color-base-200: #2a3655;
-  --color-base-300: #212638;
-  --color-base-content: #f9fbff;
-  --color-info: #385183;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-primary: #00e5ff;
+  --color-primary-content: #04070d;
+  --color-secondary: #ff2e97;
+  --color-secondary-content: #ffffff;
+  --color-accent: #b026ff;
+  --color-accent-content: #f7edff;
+  --color-neutral: #d9f6ff;
+  --color-neutral-content: #05070f;
+  --color-base-100: #0c0a17;
+  --color-base-200: #070510;
+  --color-base-300: #171130;
+  --color-base-content: #d9f6ff;
+  --color-info: #00e5ff;
+  --color-success: #39ff88;
+  --color-warning: #ffc400;
+  --color-error: #ff3860;
 
   --radius-field: 0rem;
   --radius-box: 0rem;
   --radius-selector: 0rem;
 
   --tt-tailw: 6px;
-  --tt-bg: var(--color-primary);
+  --tt-bg: var(--color-base-300);
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
   }
 
   p {
@@ -91,6 +89,23 @@
 
   body {
     min-height: 100vh;
+    font-family: var(--font-mono);
+    letter-spacing: 0.01em;
+    position: relative;
+  }
+
+  /* La griglia della raffineria, dietro a tutto. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--color-primary) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-primary) 7%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 78%);
   }
 
   h1,
@@ -99,6 +114,8 @@
   h4 {
     margin-bottom: 0.5rem;
     line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -107,8 +124,29 @@
   background: var(--color-base-200);
 }
 
+/* Il contenuto sta sopra la griglia. */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
 .btn {
   box-shadow: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-width: 1px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-accent {
+  box-shadow: 0 0 12px -2px currentColor;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-accent:hover {
+  box-shadow: 0 0 22px -2px currentColor;
 }
 
 .link {
@@ -117,4 +155,65 @@
 
 .link:hover {
   opacity: 80%;
+}
+
+/* La freccina la disegniamo noi: via il triangolino del browser. */
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* --- pezzi di insegna, riusabili --- */
+
+.neon-text {
+  text-shadow:
+    0 0 6px color-mix(in oklab, currentColor 70%, transparent),
+    0 0 22px color-mix(in oklab, currentColor 45%, transparent);
+}
+
+.neon-panel {
+  border: 1px solid color-mix(in oklab, var(--color-primary) 40%, transparent);
+  background: var(--color-base-100);
+  box-shadow: 0 0 24px -8px color-mix(in oklab, var(--color-primary) 65%, transparent);
+  transition:
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.neon-panel:hover {
+  border-color: color-mix(in oklab, var(--color-primary) 85%, transparent);
+  box-shadow: 0 0 34px -6px color-mix(in oklab, var(--color-primary) 75%, transparent);
+}
+
+.neon-panel-accent {
+  border-color: color-mix(in oklab, var(--color-secondary) 45%, transparent);
+  box-shadow: 0 0 26px -8px color-mix(in oklab, var(--color-secondary) 70%, transparent);
+}
+
+/* Angoli tagliati, da pannello di controllo. */
+.clip-corner {
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+
+.tag-line {
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+/* Il pulsante che apre un barile nuovo. */
+.dashed-panel {
+  border: 1px dashed color-mix(in oklab, var(--color-secondary) 55%, transparent);
+  background: color-mix(in oklab, var(--color-base-100) 45%, transparent);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.dashed-panel:hover {
+  border-color: var(--color-secondary);
+  background: color-mix(in oklab, var(--color-base-100) 70%, transparent);
+  box-shadow: 0 0 30px -8px var(--color-secondary);
 }
