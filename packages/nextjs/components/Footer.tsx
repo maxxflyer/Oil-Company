@@ -2,6 +2,7 @@ import React from "react";
 import { Skull } from "lucide-react";
 import { hardhat } from "viem/chains";
 import { HeartIcon } from "@heroicons/react/24/outline";
+import { Ambience } from "~~/components/Ambience";
 import { SwitchTheme } from "~~/components/SwitchTheme";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
@@ -20,6 +21,7 @@ export const Footer = () => {
           <div
             className={`flex items-center gap-1 pointer-events-auto ${isLocalNetwork ? "self-end md:self-auto" : ""}`}
           >
+            <Ambience />
             <SwitchTheme />
           </div>
         </div>
