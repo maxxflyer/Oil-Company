@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon, FireIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BookOpenIcon, BugAntIcon, FireIcon } from "@heroicons/react/24/outline";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
@@ -23,6 +23,11 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "Pools",
     href: "/pools",
     icon: <FireIcon className="h-4 w-4" />,
+  },
+  {
+    label: "Types",
+    href: "/types",
+    icon: <BookOpenIcon className="h-4 w-4" />,
   },
   {
     label: "Debug Contracts",
