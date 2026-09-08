@@ -20,7 +20,8 @@
     "lint": "eslint",
     "lint-staged": "eslint",
     "test": "hardhat test --network hardhat --gas-stats",
-    "verify": "tsx scripts/runVerify.ts"
+    "verify": "tsx scripts/runVerify.ts",
+    "abis:pool": "tsx scripts/exportPoolAbi.ts"
   },
   "dependencies": {
     "@inquirer/password": "^4.0.2",
