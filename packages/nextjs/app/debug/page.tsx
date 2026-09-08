@@ -1,5 +1,6 @@
 import { DebugContracts } from "./_components/DebugContracts";
 import type { NextPage } from "next";
+import { OwnerOnly } from "~~/components/OwnerOnly";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
@@ -9,7 +10,7 @@ export const metadata = getMetadata({
 
 const Debug: NextPage = () => {
   return (
-    <>
+    <OwnerOnly>
       <DebugContracts />
       <div className="text-center mt-8 bg-secondary text-secondary-content p-10">
         <h1 className="text-4xl my-0">Debug Contracts</h1>
@@ -21,7 +22,7 @@ const Debug: NextPage = () => {
           </code>{" "}
         </p>
       </div>
-    </>
+    </OwnerOnly>
   );
 };
 

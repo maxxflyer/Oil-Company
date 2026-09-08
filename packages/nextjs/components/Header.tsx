@@ -4,9 +4,10 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BookOpenIcon, BugAntIcon, FireIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BookOpenIcon, BugAntIcon, Cog6ToothIcon, FireIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useIsRegistryOwner } from "~~/hooks/useIsRegistryOwner";
 
 type HeaderMenuLink = {
   label: string;
@@ -18,6 +19,7 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "Home",
     href: "/",
+    icon: <HomeIcon className="h-4 w-4" />,
   },
   {
     label: "Pools",
@@ -29,19 +31,30 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/types",
     icon: <BookOpenIcon className="h-4 w-4" />,
   },
+];
+
+/** Le voci che si aprono solo per chi possiede il registro. */
+const ownerMenuLinks: HeaderMenuLink[] = [
   {
     label: "Debug Contracts",
     href: "/debug",
     icon: <BugAntIcon className="h-4 w-4" />,
   },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: <Cog6ToothIcon className="h-4 w-4" />,
+  },
 ];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+  const { isOwner } = useIsRegistryOwner();
+  const links = isOwner ? [...menuLinks, ...ownerMenuLinks] : menuLinks;
 
   return (
     <>
-      {menuLinks.map(({ label, href, icon }) => {
+      {links.map(({ label, href, icon }) => {
         const isActive = pathname === href;
         return (
           <li key={href} className="h-full">
@@ -49,8 +62,8 @@ export const HeaderMenuLinks = () => {
               href={href}
               passHref
               className={`${
-                isActive ? "bg-base-300" : ""
-              } hover:bg-base-300 focus:!bg-base-300 h-full px-4 text-sm gap-2 flex items-center whitespace-nowrap`}
+                isActive ? "bg-base-300 text-primary neon-text" : ""
+              } hover:bg-base-300 hover:text-primary focus:!bg-base-300 h-full px-4 text-sm gap-2 flex items-center whitespace-nowrap uppercase tracking-widest transition-colors`}
             >
               {icon}
               <span>{label}</span>
@@ -72,7 +85,7 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-16 shrink-0 justify-between z-20 border-b-2 border-base-300 p-0 sm:px-2">
+    <div className="sticky lg:static top-0 navbar bg-base-100/90 backdrop-blur min-h-16 shrink-0 justify-between z-20 border-b border-primary/40 p-0 sm:px-2 shadow-[0_1px_20px_-6px_var(--color-primary)]">
       <div className="navbar-start w-auto self-stretch">
         <details className="dropdown" ref={burgerMenuRef}>
           <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
