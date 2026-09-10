@@ -56,7 +56,14 @@ export const PoolCard = ({ pool, onChange }: { pool: PoolInfo; onChange: () => v
         </div>
 
         <div className="flex flex-col items-center gap-3 relative pointer-events-none">
-          <Icona className={`h-[5.6rem] w-[5.6rem] ${kind.look.text}`} strokeWidth={1} />
+          {/* Il barile principale è la compagnia: porta la goccia, non l'icona del
+              suo tipo. Gli altri si riconoscono dal tipo. */}
+          {pool.isPrime ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src="/icon.svg" alt="" className="h-[5.6rem] w-[5.6rem]" />
+          ) : (
+            <Icona className={`h-[5.6rem] w-[5.6rem] ${kind.look.text}`} strokeWidth={1} />
+          )}
           <h3 className="text-xl font-bold text-primary neon-text break-words m-0 text-center">
             {pool.name}
             {pool.isPrime ? <span className="ml-2 text-xs align-middle text-secondary">★</span> : null}
