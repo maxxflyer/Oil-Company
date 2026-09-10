@@ -14,12 +14,14 @@ export const KindFilter = ({
   value,
   onChange,
   counts,
+  prime,
 }: {
-  value: number | null;
-  onChange: (kind: number | null) => void;
+  value: number | "prime" | null;
+  onChange: (kind: number | "prime" | null) => void;
   counts: Record<number, number>;
+  prime: number;
 }) => {
-  const tutti = Object.values(counts).reduce((somma, quanti) => somma + quanti, 0);
+  const tutti = Object.values(counts).reduce((somma, quanti) => somma + quanti, prime);
 
   return (
     <div className="flex flex-wrap gap-3">
@@ -36,6 +38,22 @@ export const KindFilter = ({
         <Layers className="h-7 w-7" strokeWidth={1.25} />
         <span className="text-lg font-bold leading-none">{tutti}</span>
       </button>
+
+      {prime > 0 && (
+        <button
+          type="button"
+          title="Prime Barrel"
+          onClick={() => onChange("prime")}
+          className={`w-20 h-20 border flex flex-col items-center justify-center gap-1 transition-colors text-secondary ${
+            value === "prime" ? "border-secondary bg-secondary/10" : "border-secondary/40 opacity-60 hover:opacity-100"
+          }`}
+        >
+          {/* La goccia: il barile principale porta il segno della compagnia. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.svg" alt="" className="h-7 w-7" />
+          <span className="text-lg font-bold leading-none">{prime}</span>
+        </button>
+      )}
 
       {POOL_KINDS.map(kind => {
         const Icona = kind.icon;

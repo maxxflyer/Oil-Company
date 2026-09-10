@@ -11,7 +11,9 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const Pools: NextPage = () => {
   const [isDrilling, setIsDrilling] = useState(false);
-  const [filtro, setFiltro] = useState<number | null>(null);
+  // Il barile principale è un fund barrel come gli altri, ma ne esiste uno solo e
+  // fa cose che gli altri non fanno: nei filtri sta per conto suo.
+  const [filtro, setFiltro] = useState<number | "prime" | null>(null);
 
   const {
     data: pools,
@@ -27,8 +29,16 @@ const Pools: NextPage = () => {
   });
 
   const conteggi: Record<number, number> = {};
-  for (const pool of pools ?? []) conteggi[pool.kind] = (conteggi[pool.kind] ?? 0) + 1;
-  const mostrati = (pools ?? []).filter(pool => filtro === null || pool.kind === filtro);
+  let quantiPrime = 0;
+  for (const pool of pools ?? []) {
+    if (pool.isPrime) quantiPrime += 1;
+    else conteggi[pool.kind] = (conteggi[pool.kind] ?? 0) + 1;
+  }
+  const mostrati = (pools ?? []).filter(pool => {
+    if (filtro === null) return true;
+    if (filtro === "prime") return pool.isPrime;
+    return pool.kind === filtro && !pool.isPrime;
+  });
 
   return (
     <div className="flex flex-col grow w-full px-6 py-10 max-w-6xl mx-auto">
@@ -48,7 +58,7 @@ const Pools: NextPage = () => {
       </p>
 
       <div className="mt-2 mb-1">
-        <KindFilter value={filtro} onChange={setFiltro} counts={conteggi} />
+        <KindFilter value={filtro} onChange={setFiltro} counts={conteggi} prime={quantiPrime} />
       </div>
 
       {isLoading ? (
