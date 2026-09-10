@@ -38,9 +38,15 @@ const Types: NextPage = () => {
       </p>
 
       <div className="neon-panel neon-panel-accent clip-corner p-6 flex flex-col gap-3">
-        <div>
-          <span className="tag-line text-secondary">the first one</span>
-          <h2 className="text-2xl font-bold text-secondary m-0">Prime Barrel</h2>
+        <div className="flex items-center gap-4">
+          {/* La goccia: qui il barile principale si presenta col segno della compagnia,
+              come nella sua card. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.svg" alt="" className="h-14 w-14 shrink-0" />
+          <div>
+            <span className="tag-line text-secondary">the first one</span>
+            <h2 className="text-2xl font-bold text-secondary m-0">Prime Barrel</h2>
+          </div>
         </div>
         <p className="m-0 opacity-80 text-sm">
           The company&apos;s own barrel, open since the registry was deployed. It gathers the investors&apos; money in
