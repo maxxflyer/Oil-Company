@@ -112,7 +112,7 @@ contract PoolRegistry {
     error NoBeneficiary();
     error NothingToWithdraw();
     error PrimeBarrelAlreadyOpen();
-    error PrimeBarrelMissing();
+    error NotCreator(address caller);
     error NoFactory();
     error TransferFailed();
 
@@ -266,13 +266,16 @@ contract PoolRegistry {
     }
 
     /**
-     * Attacca al Prime Barrel il titolo della PRIME DAO: uno ogni `every` versati.
+     * Attacca a un barile il titolo che consegnerà a chi versa: uno ogni `every`
+     * versati. Lo chiede chi il barile l'ha aperto, e una volta sola.
+     *
      * Il contratto del titolo va messo al mondo dopo il barile, perché deve sapere
      * chi è l'unico che può coniarne.
      */
-    function setPrimeShareNft(address nft, uint256 every) external onlyOwner {
-        if (primeBarrel == address(0)) revert PrimeBarrelMissing();
-        AaveFundPool(primeBarrel).setShareNft(nft, every);
+    function setShareNft(address poolAddress, address nft, uint256 every) external {
+        if (!isPool[poolAddress]) revert UnknownPool(poolAddress);
+        if (msg.sender != PoolBase(poolAddress).creator()) revert NotCreator(msg.sender);
+        AaveFundPool(poolAddress).setShareNft(nft, every);
     }
 
     function setWeth(address token) external onlyOwner {

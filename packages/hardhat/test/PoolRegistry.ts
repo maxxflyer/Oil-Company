@@ -22,15 +22,21 @@ async function deployFixture() {
 
 describe("PoolRegistry", function () {
   describe("Apertura di un barrel", function () {
-    it("parte col solo Prime Barrel e la tariffa del deploy", async function () {
+    it("parte col Prime Barrel, col barile dell'Omnistaker e la tariffa del deploy", async function () {
       const { registry } = await networkHelpers.loadFixture(deployFixture);
-      expect(await registry.poolsCount()).to.equal(1n);
+      expect(await registry.poolsCount()).to.equal(2n);
       expect(await registry.creationFee()).to.equal(FEE);
 
-      const [primo] = await registry.getAllPools();
+      const [primo, secondo] = await registry.getAllPools();
       expect(primo.isPrime).to.equal(true);
       expect(primo.name).to.equal("Oil Company");
       expect(primo.poolAddress).to.equal(await registry.primeBarrel());
+
+      // Il secondo è il lancio dell'Omnistaker: un barile come il Prime, ma in USDC.
+      expect(secondo.isPrime).to.equal(false);
+      expect(secondo.name).to.equal("Omnistaker");
+      expect(secondo.assetSymbol).to.equal("USDC");
+      expect(secondo.shareNftEvery).to.equal(100n * 10n ** 6n);
     });
 
     it("il Prime Barrel si apre una volta sola", async function () {
@@ -44,10 +50,11 @@ describe("PoolRegistry", function () {
     it("crea un pool con nome, creatore e blocco", async function () {
       const { registry, stranger } = await networkHelpers.loadFixture(deployFixture);
 
+      const prima = await registry.poolsCount();
       const tx = await registry.connect(stranger).createPool("Sector-7 Crude", BASIC, ZERO, ZERO, { value: FEE });
       const receipt = await tx.wait();
 
-      expect(await registry.poolsCount()).to.equal(2n);
+      expect(await registry.poolsCount()).to.equal(prima + 1n);
 
       const tutti = await registry.getAllPools();
       const pool = tutti[tutti.length - 1];
@@ -138,8 +145,9 @@ describe("PoolRegistry", function () {
       await registry.setCreationFee(FEE * 2n);
       expect(await registry.creationFee()).to.equal(FEE * 2n);
 
+      const prima = await registry.poolsCount();
       await registry.createPool("Al prezzo nuovo", BASIC, ZERO, ZERO, { value: FEE * 2n });
-      expect(await registry.poolsCount()).to.equal(2n);
+      expect(await registry.poolsCount()).to.equal(prima + 1n);
     });
 
     it("chiunque altro non la tocca", async function () {
@@ -154,13 +162,17 @@ describe("PoolRegistry", function () {
       await registry.connect(stranger).createPool("Uno", BASIC, ZERO, ZERO, { value: FEE });
       await registry.connect(stranger).createPool("Due", BASIC, ZERO, ZERO, { value: FEE });
 
+      // Nella cassa c'è anche la tariffa del barile aperto dal deploy.
+      const inCassa = await ethers.provider.getBalance(await registry.getAddress());
+      expect(inCassa).to.equal(FEE * 3n);
+
       const before = await ethers.provider.getBalance(owner.address);
       const tx = await registry.withdraw(owner.address);
       const receipt = await tx.wait();
       const gas = receipt!.gasUsed * receipt!.gasPrice;
       const after = await ethers.provider.getBalance(owner.address);
 
-      expect(after - before + gas).to.equal(FEE * 2n);
+      expect(after - before + gas).to.equal(inCassa);
       expect(await ethers.provider.getBalance(await registry.getAddress())).to.equal(0n);
     });
 

@@ -1,6 +1,9 @@
 import { deployScript, artifacts } from "../rocketh/deploy.js";
 
 const RAY_PERCENT = 10_000_000_000_000_000_000_000_000n; // 1% in ray
+const ZERO = "0x0000000000000000000000000000000000000000";
+/// Il nome del barile con cui si lancia l'Omnistaker: da qui lo si ritrova.
+const OMNISTAKER = "Omnistaker";
 
 /**
  * Dove il Prime Barrel manda il proprio surplus: il meccanismo che lo ridistribuisce
@@ -156,7 +159,7 @@ export default deployScript(
 
     // Il Prime Barrel: raccoglie in DAI e manda il suo surplus al meccanismo esterno.
     const primeBarrel = await env.read(registry, { functionName: "primeBarrel" });
-    if (primeBarrel === "0x0000000000000000000000000000000000000000") {
+    if (primeBarrel === ZERO) {
       const dai = env.get("MockDAI").address;
       await env.execute(registry, {
         account: deployer,
@@ -168,19 +171,54 @@ export default deployScript(
 
     // Il titolo della PRIME DAO: uno ogni cento DAI versati nel Prime Barrel.
     const prime = await env.read(registry, { functionName: "primeBarrel" });
-    const shareNft = await env.deploy("PrimeShareNFT", {
-      account: deployer,
-      artifact: artifacts.PrimeShareNFT,
-      args: [prime],
-    });
     const attaccato = await env.read(registry, { functionName: "getPoolInfo", args: [prime] });
-    if (attaccato.shareNft === "0x0000000000000000000000000000000000000000") {
+    if (attaccato.shareNft === ZERO) {
+      const shareNft = await env.deploy("PrimeShareNFT", {
+        account: deployer,
+        artifact: artifacts.PrimeShareNFT,
+        args: [prime, "Oil Company Prime Share", "PRIME"],
+      });
       await env.execute(registry, {
         account: deployer,
-        functionName: "setPrimeShareNft",
-        args: [shareNft.address, 100n * 10n ** 18n],
+        functionName: "setShareNft",
+        args: [prime, shareNft.address, 100n * 10n ** 18n],
       });
       console.log("🎟  PRIME DAO share:", shareNft.address, "— one every 100 DAI");
+    }
+
+    /**
+     * Il barile dell'Omnistaker: è così che l'Omnistaker si lancia, con un barile fatto
+     * come il Prime. Raccoglie USDC e consegna un titolo ogni cento versati; il capitale
+     * frutta in Aave e non si muove, e il surplus, quando qualcuno lo brucia, va alla
+     * cassa dell'Omnistaker — per ora l'account che comanda.
+     */
+    const omnistakerBarrel = async () =>
+      (await env.read(registry, { functionName: "getAllPools" })).find(barile => barile.name === OMNISTAKER);
+
+    let omni = await omnistakerBarrel();
+    if (!omni) {
+      await env.execute(registry, {
+        account: deployer,
+        functionName: "createPool",
+        args: [OMNISTAKER, 1, env.get("MockUSDC").address, owner], // tipo 1: frutta in Aave
+        value: await env.read(registry, { functionName: "creationFee" }),
+      });
+      omni = await omnistakerBarrel();
+      console.log("🪙  Omnistaker barrel:", omni?.poolAddress, "— USDC");
+    }
+
+    if (omni && omni.shareNft === ZERO) {
+      const omniShare = await env.deploy("OmnistakerShareNFT", {
+        account: deployer,
+        artifact: artifacts.PrimeShareNFT,
+        args: [omni.poolAddress, "Omnistaker Prime Share", "OMNIP"],
+      });
+      await env.execute(registry, {
+        account: deployer,
+        functionName: "setShareNft",
+        args: [omni.poolAddress, omniShare.address, 100n * 10n ** 6n], // USDC ha sei cifre
+      });
+      console.log("🎟  Omnistaker share:", omniShare.address, "— one every 100 USDC");
     }
 
     // Un bersaglio per provare le pile: conta le volte che lo chiamano.

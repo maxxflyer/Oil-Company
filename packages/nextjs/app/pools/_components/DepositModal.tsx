@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import type { PoolInfo } from "./types";
-import { erc20Abi, parseUnits } from "viem";
+import { erc20Abi, erc721Abi, parseUnits } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { usePoolActions } from "~~/hooks/usePoolActions";
 import { formatAmount } from "~~/utils/amount";
+
+const ZERO = "0x0000000000000000000000000000000000000000";
 
 /**
  * Il pannello per versare in un barile di tipo 1.
@@ -31,6 +33,14 @@ export const DepositModal = ({
     functionName: "balanceOf",
     args: address ? [address] : undefined,
     query: { enabled: Boolean(address) },
+  });
+
+  // La sigla del titolo che questo barile consegna, se ne consegna uno.
+  const { data: titolo } = useReadContract({
+    address: pool.shareNft,
+    abi: erc721Abi,
+    functionName: "symbol",
+    query: { enabled: pool.shareNft !== ZERO },
   });
 
   const quanti = (testo: string) => {
@@ -105,10 +115,10 @@ export const DepositModal = ({
         >
           {isBusy ? <span className="loading loading-spinner loading-sm" /> : "Deposit"}
         </button>
-        {pool.shareNft !== "0x0000000000000000000000000000000000000000" && pool.shareNftEvery > 0n ? (
+        {pool.shareNft !== ZERO && pool.shareNftEvery > 0n ? (
           <p className="tag-line m-0 text-center text-secondary">
-            every {formatAmount(pool.shareNftEvery, pool.assetDecimals)} {pool.assetSymbol} you put in earns one PRIME
-            DAO share
+            every {formatAmount(pool.shareNftEvery, pool.assetDecimals)} {pool.assetSymbol} you put in earns one{" "}
+            {titolo ?? "share"}
           </p>
         ) : null}
         <p className="tag-line m-0 text-center">two signatures: the approval first, then the deposit</p>

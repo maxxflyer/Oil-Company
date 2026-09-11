@@ -8,11 +8,18 @@ import { aaveFundPoolAbi } from "~~/contracts/poolAbis";
 import { formatAmount } from "~~/utils/amount";
 
 /**
- * Il titolo della PRIME DAO: quanti ne hai e quanto manca al prossimo.
+ * Il titolo che un barile consegna a chi versa: quanti ne hai e quanto manca al
+ * prossimo. Il Prime Barrel dà quello della PRIME DAO; ogni progetto lanciato con
+ * un barile suo dà il proprio.
  */
-export const PrimeSharePanel = ({ pool }: { pool: PoolInfo }) => {
+export const ShareTitlePanel = ({ pool }: { pool: PoolInfo }) => {
   const { address } = useAccount();
 
+  const { data: simbolo } = useReadContract({
+    address: pool.shareNft,
+    abi: erc721Abi,
+    functionName: "symbol",
+  });
   const { data: quanti } = useReadContract({
     address: pool.shareNft,
     abi: erc721Abi,
@@ -28,23 +35,25 @@ export const PrimeSharePanel = ({ pool }: { pool: PoolInfo }) => {
     query: { enabled: Boolean(address) },
   });
 
+  const ogni = `${formatAmount(pool.shareNftEvery, pool.assetDecimals)} ${pool.assetSymbol}`;
+  const barile = pool.isPrime ? "the Prime Barrel" : "this barrel";
+  const assemblea = pool.isPrime ? "the PRIME DAO — the assembly that runs Oil Company" : `the ${pool.name} assembly`;
+
   return (
     <div className="neon-panel neon-panel-accent clip-corner p-8 flex flex-col gap-5">
       <div className="flex items-start gap-4">
         <Ticket className="h-10 w-10 shrink-0 text-secondary" strokeWidth={1.25} />
         <div>
-          <span className="tag-line text-secondary">prime dao</span>
+          <span className="tag-line text-secondary">{pool.isPrime ? "prime dao" : "shares"}</span>
           <h2 className="text-2xl font-bold text-secondary neon-text m-0">
-            One share every {formatAmount(pool.shareNftEvery, pool.assetDecimals)} {pool.assetSymbol}
+            One {simbolo ?? "share"} every {ogni}
           </h2>
         </div>
       </div>
 
       <p className="m-0 opacity-80 text-sm">
-        Put money into the Prime Barrel and you get a share for every{" "}
-        {formatAmount(pool.shareNftEvery, pool.assetDecimals)} {pool.assetSymbol} you put in. The share is an NFT, and
-        it is your vote in the PRIME DAO — the assembly that runs Oil Company. It can be given away or sold, and the
-        vote goes with it.
+        Put money into {barile} and you get a share for every {ogni} you put in. The share is an NFT, and it is your
+        vote in {assemblea}. It can be given away or sold, and the vote goes with it.
       </p>
 
       <div className="grid gap-6 sm:grid-cols-2 border-t border-secondary/25 pt-5">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PoolAavePanel } from "../_components/PoolAavePanel";
-import { PrimeSharePanel } from "../_components/PrimeSharePanel";
+import { ShareTitlePanel } from "../_components/ShareTitlePanel";
 import { TriggerPanel } from "../_components/TriggerPanel";
 import { kindOf } from "../_components/poolKind";
 import { Address, Balance } from "@scaffold-ui/components";
@@ -92,7 +92,7 @@ const PoolPage: NextPage = () => {
 
       {pool && pool.kind === 1 && (
         <div className="mt-5 flex flex-col gap-5">
-          {pool.shareNft !== "0x0000000000000000000000000000000000000000" && <PrimeSharePanel pool={pool} />}
+          {pool.shareNft !== "0x0000000000000000000000000000000000000000" && <ShareTitlePanel pool={pool} />}
           <PoolAavePanel pool={pool} onChange={refetch} />
         </div>
       )}

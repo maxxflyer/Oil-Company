@@ -4,11 +4,14 @@ pragma solidity ^0.8.30;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 /**
- * Il titolo della PRIME DAO.
+ * Il titolo di un barile.
  *
- * Chi mette denaro nel Prime Barrel ne riceve uno ogni cento unità versate: è la voce
- * che avrà in assemblea. Il Prime Barrel è l'unico che può coniarne, e li conia solo
- * contro denaro davvero entrato.
+ * Chi mette denaro nel barile ne riceve uno ogni tot versato: è la voce che avrà in
+ * assemblea. Quel barile è l'unico che può coniarne, e li conia solo contro denaro
+ * davvero entrato.
+ *
+ * Il primo è il titolo della PRIME DAO, quello del Prime Barrel della compagnia. Ogni
+ * progetto che si lancia con un barile suo porta il proprio, col nome che si è scelto.
  *
  * È un NFT come gli altri: si regala, si vende, e il voto va con lui.
  * @author Oil Company
@@ -20,7 +23,11 @@ contract PrimeShareNFT is ERC721 {
 
     error OnlyBarrel();
 
-    constructor(address barrelAddress) ERC721("Oil Company Prime Share", "PRIME") {
+    constructor(
+        address barrelAddress,
+        string memory titleName,
+        string memory titleSymbol
+    ) ERC721(titleName, titleSymbol) {
         barrel = barrelAddress;
     }
 
